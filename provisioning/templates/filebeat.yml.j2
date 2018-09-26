@@ -1,0 +1,29 @@
+filebeat.inputs:
+  - type: log
+
+    # Change to true to enable this input configuration.
+    enabled: true
+
+    # Paths that should be crawled and fetched. Glob based paths.
+    paths:
+      - /var/log/nginx/*.log
+    tags: ["nginx"]
+  - type: log
+
+    # Change to true to enable this input configuration.
+    enabled: true
+
+    # Paths that should be crawled and fetched. Glob based paths.
+    paths:
+      - /var/www/*/logs/debug*.log
+    tags: ["json"]
+
+filebeat.config.modules:
+  # Glob pattern for configuration loading
+  path: ${path.config}/modules.d/*.yml
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+output.logstash:
+  # The Logstash hosts
+  hosts: ["{{ logstash_host }}"]
