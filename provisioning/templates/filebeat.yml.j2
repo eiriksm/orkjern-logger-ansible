@@ -1,29 +1,40 @@
 filebeat.inputs:
   - type: log
-
-    # Change to true to enable this input configuration.
     enabled: true
-
-    # Paths that should be crawled and fetched. Glob based paths.
+    json:
+      overwrite_keys: true
+      keys_under_root: true
     paths:
-      - /var/log/nginx/*.log
-    tags: ["nginx"]
-  - type: log
+      - /var/www/*/logs/*.log
+      - /var/www/*/logs/*.log.1
+filebeat.modules:
+  - module: nginx
+    access:
+      enabled: true
+    error:
+      enabled: false
+    ingress_controller:
+      enabled: false
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
 
-    # Change to true to enable this input configuration.
-    enabled: true
-
-    # Paths that should be crawled and fetched. Glob based paths.
-    paths:
-      - /var/www/*/logs/debug*.log
-    tags: ["json"]
-
-filebeat.config.modules:
-  # Glob pattern for configuration loading
-  path: ${path.config}/modules.d/*.yml
-
-  # Set to true to enable config reloading
-  reload.enabled: false
 output.logstash:
   # The Logstash hosts
   hosts: ["{{ logstash_host }}"]
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - timestamp:
+      ignore_missing: true
+      ignore_failure: true
+      field: extra.elasticsearch_date
+      timezone: "Europe/Oslo"
+      layouts:
+        - '2006-01-02T15:04:05Z'
+        - '2020-06-02T13:20:50.516Z'
+      test:
+        - '2019-06-22T16:33:51Z'
+        - '2020-06-02T13:20:50.516Z'
+
+setup.ilm.enabled: false

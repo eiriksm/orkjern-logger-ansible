@@ -5,6 +5,26 @@
     - vars/main.yml
     - vars/secrets.yml
   tasks:
+    - name: Install key
+      apt_key:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        state: present
+      become: true
+    - name: Install apt-transport-https if not installed
+      package:
+        name: apt-transport-https
+        state: latest
+    - name: Add source definition
+      apt_repository:
+        repo: "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main"
+        state: present
+        filename: "elastic-7.x"
+    - name: Install filebeat
+      apt:
+        name: filebeat=7.10.2
+        force: yes
+        update_cache: true
+
     - name: Copy filebeat template
       template:
         src: ./templates/filebeat.yml.j2
@@ -12,4 +32,3 @@
         owner: root
         group: root
         mode: 0644
-
