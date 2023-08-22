@@ -12,7 +12,8 @@ filebeat.modules:
     access:
       enabled: true
     error:
-      enabled: false
+      enabled: true
+      var.paths: ["/var/log/nginx/*error.log"]
     ingress_controller:
       enabled: false
 setup.template.settings:
